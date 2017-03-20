@@ -3,9 +3,6 @@ language: php
 php:
   - 7.1
 
-#addons:
-#  mariadb: '10.0'
-
 cache:
     directories:
         - $HOME/.composer/cache
@@ -15,9 +12,6 @@ before_install:
 
 install:
   - travis_retry composer update --no-interaction
-
-#before_script:
-#  - mysql -e 'create database if not exists koncerto_tests;'
 
 script:
   - vendor/bin/phpstan analyse -c phpstan.neon -l5 src/ --ansi
