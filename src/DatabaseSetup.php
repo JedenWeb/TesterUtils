@@ -52,19 +52,30 @@ trait DatabaseSetup
 		return $container;
 	}
 
+	/**
+	 * @return string[]
+	 */
+	abstract public function getSqls(): array;
+
+	/**
+	 * @return string[]
+	 */
+	public function getFixtureDirs(): array
+	{
+		return [];
+	}
+
 	private function setupDatabase(Connection $db): void
 	{
 		$this->databaseName = 'db_tests_' . getmypid();
 //		$this->dropDatabase($db);
 		$this->createDatabase($db);
 
-		$sqls = [
-			__DIR__ . '/db/schema.sql',
-			__DIR__ . '/db/data.sql',
-		];
+		$sqls = $this->getSqls();
+		$fixtureDirs = $this->getFixtureDirs();
 
 		$db->exec(sprintf('USE `%s`', $this->databaseName));
-		$db->transactional(function (Connection $db) use ($sqls) {
+		$db->transactional(function (Connection $db) use ($sqls, $fixtureDirs) {
 			$db->exec('SET foreign_key_checks = 0;');
 			$db->exec('SET @disable_triggers = 1;');
 
@@ -72,8 +83,10 @@ trait DatabaseSetup
 				Helpers::loadFromFile($db, $file);
 			}
 
-			foreach (Finder::find('*.sql')->from(__DIR__ . '/db/fixtures') as $file) {
-				Helpers::loadFromFile($db, $file);
+			foreach ($fixtureDirs as $dir) {
+				foreach (Finder::find('*.sql')->from($dir) as $file) {
+					Helpers::loadFromFile($db, $file);
+				}
 			}
 
 			$db->exec('SET foreign_key_checks = 1;');
