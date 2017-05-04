@@ -66,7 +66,7 @@ trait CompiledContainer
 		$config = new Nette\Configurator();
 		$config->addParameters([
 			// vendor/kdyby/tester-extras/src
-			'rootDir' => $rootDir = __DIR__ . '/..',
+			'rootDir' => $rootDir = realpath(__DIR__ . '/../../../..'),
 			'appDir' => $rootDir . '/src',
 			'wwwDir' => $rootDir . '/www',
 		]);
